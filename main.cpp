@@ -59,7 +59,7 @@ void display(GLFWwindow* window, double currentTime) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(renderingProgram);
 	//缩放
-	//放大系数有问题，应该放大和缩小不是成比例，如1放大1.5为1.5，但是1.5缩写0.5为0.75；
+	//放大系数有问题，应该放大和缩小不是成比例，如1放大1.5为1.5，但是1.5缩写0.5为0.75，实际应该是倒数，放大1.5倍后应该缩小1.5倍的倒数
 	scale(vecTrianglesVertex, scaleRatio, scaleRatio, scaleRatio);
 
 	//旋转
