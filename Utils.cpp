@@ -83,3 +83,4 @@ glm::mat4 buildScaleMat(float x, float y, float z) {
 		f0, f0, f0, f1
 	);
 }
+
