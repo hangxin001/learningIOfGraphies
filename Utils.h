@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __TESTOPENGL__
-#define __TESTOPENGL__
+#ifndef __TESTOPENGL__UTILS__
+#define __TESTOPENGL__UTILS__
 #include<GL/glew.h>
 #include<GLFW/glfw3.h>
 #include<string>
@@ -14,6 +14,9 @@ enum class RotateAxis {
 	Y = 1,
 	Z = 2,
 };
+constexpr auto f0 = 0.0;
+constexpr auto f1 = 1.0;
+
 
 std::string ReadGLSL(std::string filePath);
 

@@ -1,3 +1,5 @@
+//Utils.cpp
+
 #include"Utils.h"
 
 std::string ReadGLSL(std::string filePath) {
@@ -44,8 +46,6 @@ glm::mat4 buildTranslateMat(float x, float y, float z) {
 
 glm::mat4 buildRotateMat(float rad, RotateAxis axis) {
 	using namespace glm;
-	constexpr auto f0 = 0.0;
-	constexpr auto f1 = 1.0;
 	if (axis == RotateAxis::X) {
 		return mat4(f1, f0, f0, f0,
 			f0, cos(rad), -sin(rad), f0,

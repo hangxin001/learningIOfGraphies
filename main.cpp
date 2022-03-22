@@ -5,21 +5,27 @@
 #include"Utils.h"
 #include<glm/gtx/string_cast.hpp>
 #include<vector>
+#include<glm/ext.hpp>
 using namespace std;
 using namespace glm;
-#define numVAOs 1
+constexpr int numVAOs = 1;
+constexpr int numVBOs = 2;
 GLuint renderingProgram;
 GLuint vao[numVAOs];
-float x = 0.0f;
-float inc = 0.01f;
-float scaleRatio = 1.2f;
-int scaleCount = 0;
-vector<glm::vec4> vecTrianglesVertex;
-GLfloat* vecrawTrianglesVertex;
+GLuint vbo[numVBOs];
+float cameraX,cameraY, cameraZ;
+float cubeLocX,cubeLocY, cubeLocZ;
+
+//display()中使用
+GLuint mvLoc, projLoc;
+int width, height;
+float aspect;
+glm::mat4 pMat, vMat, mMat, mvMat;
+glm::mat4 tMat, rMat;
 
 GLuint createShaderProgram() {
-	GLuint vShader = LoadShaderSource(GL_VERTEX_SHADER, "./shader/vshader.shader", 1);
-	GLuint fShader = LoadShaderSource(GL_FRAGMENT_SHADER, "./shader/fshader.shader", 1);
+	GLuint vShader = LoadShaderSource(GL_VERTEX_SHADER, "./shader/vshader.glsl", 1);
+	GLuint fShader = LoadShaderSource(GL_FRAGMENT_SHADER, "./shader/fshader.glsl", 1);
 	GLuint vfProgram = glCreateProgram();
 	glAttachShader(vfProgram, vShader);
 	glAttachShader(vfProgram, fShader);
@@ -27,20 +33,32 @@ GLuint createShaderProgram() {
 	ProgramErrorCheck(vfProgram);
 	return vfProgram;
 }
-
-void init(GLFWwindow* window) {
-	renderingProgram = createShaderProgram();
+void InitModelData() {
+	float vertexPosistion[108] = {
+	 -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
+	  1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
+	  1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f,
+	  1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f,
+	  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	  -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+	  -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
+	  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
+	  -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f,
+	  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,
+	  -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
+	  1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f
+	};
 	glGenVertexArrays(numVAOs, vao);
 	glBindVertexArray(vao[0]);
+	glGenBuffers(numVBOs, vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPosistion), vertexPosistion, GL_STATIC_DRAW);
 }
-void InitVertexData() {
-	vecTrianglesVertex.emplace_back(vec4(0.0, 0.25, 0.0, 1.0));
-	vecTrianglesVertex.emplace_back(vec4(0.25, 0.0, 0.0, 1.0));
-	vecTrianglesVertex.emplace_back(vec4(-0.25, 0.0, 0.0, 1.0));
-	vecrawTrianglesVertex = new GLfloat[3 * 4];
-	for (int i = 0, vecIndex = 0; i < 12; ++i) {
-		*(vecrawTrianglesVertex + i) = vecTrianglesVertex[i / 4][i % 4];
-	}
+void init(GLFWwindow* window) {
+	renderingProgram = createShaderProgram();
+	cameraX = 0.0f;	cameraY = 0.0f; cameraZ = 8.0f;
+	cubeLocX = 0.0f; cubeLocY = -2.0f;	cubeLocZ = 0.0f;
+	InitModelData();
 }
 void display(GLFWwindow* window, double currentTime) {
 	using namespace glm;
@@ -55,35 +73,36 @@ void display(GLFWwindow* window, double currentTime) {
 		}
 	};
 	glClear(GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0, 0.0, 0.0, 1);
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(renderingProgram);
-	//缩放
-	//放大系数有问题，应该放大和缩小不是成比例，如1放大1.5为1.5，但是1.5缩写0.5为0.75，实际应该是倒数，放大1.5倍后应该缩小1.5倍的倒数
-	scale(vecTrianglesVertex, scaleRatio, scaleRatio, scaleRatio);
-
-	//旋转
-	rotate(vecTrianglesVertex, 0.1);
 	
-	for (int i = 0, vecIndex = 0; i < 12; ++i) {
-		*(vecrawTrianglesVertex + i) = vecTrianglesVertex[i / 4][i%4];
-	}
-	GLuint vertexsLoc = glGetUniformLocation(renderingProgram, "vertexs");
-	glProgramUniform4fv(renderingProgram,vertexsLoc,3, vecrawTrianglesVertex);
+	mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
+	projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
 
-	/*
-	//移动
-	x += inc;
-	inc = x > 1.0f || x < -1.0f ? -inc : inc;
-	GLuint offsetLoc = glGetUniformLocation(renderingProgram, "offset");
-	glProgramUniform1f(renderingProgram, offsetLoc, x);
-	//缩放
-	scaleRatio += scaleRate;
-	scaleRate = scaleRatio > 1.5 || scaleRatio < 0.5 ? -scaleRate : scaleRate;
-	GLuint scaleLoc = glGetUniformLocation(renderingProgram, "scaleOffset");
-	glProgramUniform1f(renderingProgram, scaleLoc, scaleRatio);
-	*/
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+		glfwGetFramebufferSize(window, &width, &height);
+		aspect = (float)width / (float)height;
+		pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
+		vMat = glm::translate(glm::mat4(f1), glm::vec3(-cameraX, -cameraY, -cameraZ));
+		//mMat = glm::translate(glm::mat4(f1), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
+		tMat = glm::translate(glm::mat4(1.0f),
+			glm::vec3(sin(-.35f * currentTime) * 2.0f, cos(0.52f * currentTime) * 2.0f, sin(0.7f * currentTime) * 2.0f));
+		rMat = glm::rotate(glm::mat4(1.0f), 1.75f * (float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
+		rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(1.0f, 0, 0));
+		rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(0, 0, 1.0f));
+		mMat = tMat * rMat;
+		mvMat = vMat * mMat;
+
+		glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
+
+		glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
 }
 int main() {
 	
@@ -96,7 +115,6 @@ int main() {
 		exit(EXIT_FAILURE);
 	glfwSwapInterval(1);
 	init(windows);
-	InitVertexData();
 	while (!glfwWindowShouldClose(windows)) {
 		display(windows, glfwGetTime());
 		glfwSwapBuffers(windows);
