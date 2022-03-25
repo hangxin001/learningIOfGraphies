@@ -71,6 +71,7 @@ glm::mat4 buildRotateMat(float rad, RotateAxis axis) {
 	else {
 		assert(-1 && "undefine RotateAxis");
 	}
+	return mat4();
 }
 
 glm::mat4 buildScaleMat(float x, float y, float z) {
@@ -84,3 +85,14 @@ glm::mat4 buildScaleMat(float x, float y, float z) {
 	);
 }
 
+GLuint loadTexture(const char* texImagePath) {
+	auto textureID = SOIL_load_OGL_texture(texImagePath,
+		SOIL_LOAD_AUTO, SOIL_CREATE_NEW_ID, SOIL_FLAG_INVERT_Y);
+	if (textureID == 0)
+		std::cout << "Textrue Load Failed, FileName:" << texImagePath << std::endl;
+	return textureID;
+}
+
+GLuint loadTexture(const std::string& texImagePath) {
+	return loadTexture(texImagePath.c_str());
+}

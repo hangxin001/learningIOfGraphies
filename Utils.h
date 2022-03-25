@@ -9,6 +9,7 @@
 #include<assert.h>
 #include<type_traits>
 #include<glm/glm.hpp>
+#include<SOIL2/SOIL2.h>
 enum class RotateAxis {
 	X = 0,
 	Y = 1,
@@ -29,6 +30,10 @@ glm::mat4 buildTranslateMat(float x, float y, float z);
 glm::mat4 buildRotateMat(float rad, RotateAxis axis);
 
 glm::mat4 buildScaleMat(float x, float y, float z);
+
+GLuint loadTexture(const char* texImagePath);
+
+GLuint loadTexture(const std::string& texImagePath);
 
 
 #endif // !__AUXFUN__
