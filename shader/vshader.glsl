@@ -1,7 +1,7 @@
 #version 430
 
 layout(location = 0) in vec3 postion;
-
+layout(location = 1) in vec2 texCoord;
 
 uniform mat4 m_matrix;
 uniform mat4 v_matrix;
@@ -9,7 +9,7 @@ uniform mat4 proj_matrix;
 uniform float tf;
 
 out vec4 varyingColor;
-
+out vec2 tc;
 mat4 buildRotateX(float rad);
 mat4 buildRotateY(float rad);
 mat4 buildRotateZ(float rad);
@@ -21,7 +21,7 @@ void main(void){
 	float b = sin(301 * i/4001) * 401.0;
 	float c = sin(400 * i/6003) * 405.0;
 
-	mat4 localRotX = buildRotateX(5 * i);
+	mat4 localRotX = buildRotateX(1 * i);
 	mat4 localRotY = buildRotateY(5 * i);
 	mat4 localRotZ = buildRotateZ(5 * i);
 	mat4 localTrans = buildTranslate(a,b,c);
@@ -31,7 +31,7 @@ void main(void){
 
 	gl_Position = proj_matrix * mv_matrix * vec4(postion,1.0);
 	varyingColor = vec4(postion,1.0) * 0.5 + vec4(0.5,0.5,0.5,0.5);
-
+	tc = texCoord;
 }
 
 mat4 buildTranslate(float x,float y, float z){

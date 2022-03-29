@@ -10,6 +10,7 @@
 #include<type_traits>
 #include<glm/glm.hpp>
 #include<SOIL2/SOIL2.h>
+#include<vector>
 enum class RotateAxis {
 	X = 0,
 	Y = 1,
@@ -35,5 +36,8 @@ GLuint loadTexture(const char* texImagePath);
 
 GLuint loadTexture(const std::string& texImagePath);
 
+std::vector<float> VertexToArray(const std::vector<glm::vec3>& vertexData, const std::vector<int>& indicesData);
+
+std::vector<float> TexCoordsToArray(const std::vector<glm::vec2>& vertexData, const std::vector<int>& indicesData);
 
 #endif // !__AUXFUN__

@@ -3,13 +3,14 @@
 #include<iostream>
 #include<string>
 #include"Utils.h"
+#include"Sphere.h"
 #include<glm/gtx/string_cast.hpp>
 #include<vector>
 #include<glm/ext.hpp>
 using namespace std;
 using namespace glm;
 constexpr int numVAOs = 1;
-constexpr int numVBOs = 2;
+constexpr int numVBOs = 3;
 GLuint renderingProgram;
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
@@ -23,6 +24,7 @@ int width, height;
 float aspect;
 glm::mat4 pMat, vMat, mMat, mvMat;
 glm::mat4 tMat, rMat;
+Sphere g_sphere(10);
 
 GLuint createShaderProgram() {
 	GLuint vShader = LoadShaderSource(GL_VERTEX_SHADER, "./shader/vshader.glsl", 1);
@@ -35,26 +37,20 @@ GLuint createShaderProgram() {
 	return vfProgram;
 }
 void InitModelData() {
-	float vertexPosistion[108] = {
-	 -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f,
-	  1.0f, -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f, -1.0f,
-	  1.0f, -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, -1.0f,
-	  1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, -1.0f,
-	  1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-	  -1.0f, -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-	  -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
-	  -1.0f, -1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f,
-	  -1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, -1.0f,
-	  1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, 1.0f,
-	  -1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, 1.0f,
-	  1.0f, 1.0f, 1.0f, -1.0f, 1.0f, 1.0f, -1.0f, 1.0f, -1.0f
-	};
+
+	auto vertex = VertexToArray(g_sphere.GetVertices(),g_sphere.GetIndicse());
+	auto indices = g_sphere.GetIndicse();
+	auto texCoord = TexCoordsToArray(g_sphere.getTexCoords(), g_sphere.GetIndicse());
+	auto normals = VertexToArray(g_sphere.getNormals(), g_sphere.GetIndicse());
 	glGenVertexArrays(numVAOs, vao);
 	glBindVertexArray(vao[0]);
 	glGenBuffers(numVBOs, vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPosistion), vertexPosistion, GL_STATIC_DRAW);
-
+	glBufferData(GL_ARRAY_BUFFER, sizeof(decltype(vertex)::value_type) * vertex.size(), vertex.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(decltype(texCoord)::value_type) * texCoord.size(), texCoord.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(decltype(normals)::value_type) * normals.size(), normals.data(), GL_STATIC_DRAW);
 	brickTexture = loadTexture("pic.jpg");
 }
 void init(GLFWwindow* window) {
@@ -104,7 +100,7 @@ void display(GLFWwindow* window, double currentTime) {
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
 	glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(vMat));
 	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(mMat));
-	auto timeFactor = (float)currentTime;
+	auto timeFactor = (float)(currentTime);
 	glUniform1f(tfLoc, (float)timeFactor);
 
 
@@ -112,9 +108,17 @@ void display(GLFWwindow* window, double currentTime) {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, brickTexture);
+
+
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	glDrawArraysInstanced(GL_TRIANGLES, 0, 36, 1);
+	glDrawArraysInstanced(GL_LINES, 0, g_sphere.GetNumIndicse(), 1);
 
 }
 int main() {

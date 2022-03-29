@@ -96,3 +96,22 @@ GLuint loadTexture(const char* texImagePath) {
 GLuint loadTexture(const std::string& texImagePath) {
 	return loadTexture(texImagePath.c_str());
 }
+
+std::vector<float> VertexToArray(const std::vector<glm::vec3>& vertexData, const std::vector<int>& indicesData) {
+	std::vector<float> RetVec;
+	for (int i = 0; i < indicesData.size(); ++i) {
+		RetVec.push_back(vertexData[indicesData[i]].x);
+		RetVec.push_back(vertexData[indicesData[i]].y);
+		RetVec.push_back(vertexData[indicesData[i]].z);
+	}
+	return RetVec;
+}
+
+std::vector<float> TexCoordsToArray(const std::vector<glm::vec2>& vertexData, const std::vector<int>& indicesData) {
+	std::vector<float> RetVec;
+	for (int i = 0; i < indicesData.size(); ++i) {
+		RetVec.push_back(vertexData[indicesData[i]].s);
+		RetVec.push_back(vertexData[indicesData[i]].t);
+	}
+	return RetVec;
+}
