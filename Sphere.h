@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __TESTOPENGL__SPHERE__
-#define __TESTOPENGL__SPHERE__
+#ifndef TESTOPENGL__SPHERE
+#define TESTOPENGL__SPHERE
 #include<cmath>
 #include<vector>
 #include<glm\glm.hpp>

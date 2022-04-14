@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __TESTOPENGL__MODELIMPORTER__
-#define __TESTOPENGL__MODELIMPORTER__
+#ifndef TESTOPENGL__MODELIMPORTER
+#define TESTOPENGL__MODELIMPORTER
 #include<vector>
 #include<glm/glm.hpp>
 #include<string>

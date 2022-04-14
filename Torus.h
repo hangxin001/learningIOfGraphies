@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __TESTOPENGL__TOURUS__
-#define __TESTOPENGL__TOURUS__
+#ifndef TESTOPENGL__TOURUS
+#define TESTOPENGL__TOURUS
 #include<cmath>
 #include<vector>
 #include<glm/glm.hpp>

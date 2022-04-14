@@ -5,8 +5,9 @@ layout(location = 1) in vec2 texCoord;
 
 uniform mat4 m_matrix;
 uniform mat4 v_matrix;
+uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
-uniform float tf;
+
 
 out vec4 varyingColor;
 out vec2 tc;
@@ -16,6 +17,7 @@ mat4 buildRotateZ(float rad);
 mat4 buildTranslate(float x,float y, float z);
 void main(void){
 
+/*
 	float i = gl_InstanceID + tf;
 	float a = sin(203 * i/8000) * 403.0;
 	float b = sin(301 * i/4001) * 401.0;
@@ -27,8 +29,8 @@ void main(void){
 	mat4 localTrans = buildTranslate(a,b,c);
 
 	mat4 newM_matrix = m_matrix * localRotX;// * localTrans * localRotX * localRotY * localRotZ;	//注意是列优先存储
-	mat4 mv_matrix = v_matrix * newM_matrix;
-
+	*/
+	mat4 mv_matrix = mv_matrix;// * newM_matrix;
 	gl_Position = proj_matrix * mv_matrix * vec4(postion,1.0);
 	varyingColor = vec4(postion,1.0) * 0.5 + vec4(0.5,0.5,0.5,0.5);
 	tc = texCoord;

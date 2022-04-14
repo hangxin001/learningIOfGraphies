@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __TESTOPENGL__UTILS__
-#define __TESTOPENGL__UTILS__
+#ifndef TESTOPENGL__UTILS
+#define TESTOPENGL__UTILS
 #include<GL/glew.h>
 #include<GLFW/glfw3.h>
 #include<string>

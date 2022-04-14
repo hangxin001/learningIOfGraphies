@@ -21,12 +21,18 @@ float cameraX,cameraY, cameraZ;
 float cubeLocX,cubeLocY, cubeLocZ;
 
 //display()中使用
-GLuint mvLoc, projLoc, vLoc, mLoc, tfLoc;
+GLuint mvLoc, projLoc, vLoc, mLoc, tfLoc, nLoc;
 GLuint brickTexture;
+GLuint globalAmbLoc, ambLoc, diffLoc, specLoc, posLoc, mAmbLoc, mDiffLoc, mSpecLoc, mShiLoc;
+
 int width, height;
 float aspect;
-glm::mat4 pMat, vMat, mMat, mvMat;
+glm::mat4 pMat, vMat, mMat, mvMat, invTrMat;
 glm::mat4 tMat, rMat;
+glm::vec3 currentLightPos, lightPosV;
+glm::vec3 initialLightLoc = glm::vec3(5.0f, 2.0f, 2.0f);
+float lightPos[3];
+float globalAmbient[4] = {0.7f,0.7f,0.7f,1.0f};
 Torus g_torus(2,1,10);
 
 GLuint createShaderProgram() {
@@ -62,6 +68,42 @@ void init(GLFWwindow* window) {
 	cubeLocX = 0.0f; cubeLocY = 0.0f;	cubeLocZ = 0.0f;
 	InitModelData();
 }
+void installLights(glm::mat4 vMatrix) {
+	auto GetWhiteLight = []()->Material* {
+		return g_materialDataMng.GetMaterial("whiteLight");
+	};
+	auto GetGold = []()->Material* {
+		return g_materialDataMng.GetMaterial("gold");
+	};
+
+	lightPosV = glm::vec3(vMatrix * glm::vec4(currentLightPos, 1.0));
+	lightPos[0] = lightPosV.x;
+	lightPos[1] = lightPosV.y;
+	lightPos[2] = lightPosV.z;
+
+	// 在着色器中获取光源位置和材质属性
+	globalAmbLoc = glGetUniformLocation(renderingProgram, "globalAmbient");
+	ambLoc = glGetUniformLocation(renderingProgram, "light.ambient");
+	diffLoc = glGetUniformLocation(renderingProgram, "light.diffuse");
+	specLoc = glGetUniformLocation(renderingProgram, "light.specular");
+	posLoc = glGetUniformLocation(renderingProgram, "light.position");
+	mAmbLoc = glGetUniformLocation(renderingProgram, "material.ambient");
+	mDiffLoc = glGetUniformLocation(renderingProgram, "material.diffuse");
+	mSpecLoc = glGetUniformLocation(renderingProgram, "material.specular");
+	mShiLoc = glGetUniformLocation(renderingProgram, "material.shininess");
+	
+	// 在着色器中为光源与材质统一变量赋值
+	glProgramUniform4fv(renderingProgram, globalAmbLoc, 1, globalAmbient);
+	glProgramUniform4fv(renderingProgram, ambLoc, 1, GetWhiteLight()->GetMaterialAmbient().data());
+	glProgramUniform4fv(renderingProgram, diffLoc, 1, GetWhiteLight()->GetMaterialDiffuse().data());
+	glProgramUniform4fv(renderingProgram, specLoc, 1, GetWhiteLight()->GetMaterialSpecular().data());
+	glProgramUniform3fv(renderingProgram, posLoc, 1, lightPos);
+	glProgramUniform4fv(renderingProgram, mAmbLoc, 1, GetGold()->GetMaterialAmbient().data());
+	glProgramUniform4fv(renderingProgram, mDiffLoc, 1, GetGold()->GetMaterialDiffuse().data());
+	glProgramUniform4fv(renderingProgram, mSpecLoc, 1, GetGold()->GetMaterialSpecular().data());
+	glProgramUniform1f(renderingProgram, mShiLoc, GetGold()->GetMaterialShiniess());
+}
+
 void display(GLFWwindow* window, double currentTime) {
 	using namespace glm;
 	auto rotate = [](vector<glm::vec4>& vecTrianglesVertex, float rad) {
@@ -78,33 +120,29 @@ void display(GLFWwindow* window, double currentTime) {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glUseProgram(renderingProgram);
 	
-	//mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
+	mvLoc = glGetUniformLocation(renderingProgram, "mv_matrix");
 	projLoc = glGetUniformLocation(renderingProgram, "proj_matrix");
 	vLoc = glGetUniformLocation(renderingProgram, "v_matrix");
 	mLoc = glGetUniformLocation(renderingProgram, "m_matrix");
-	tfLoc = glGetUniformLocation(renderingProgram, "tf");
+	nLoc = glGetUniformLocation(renderingProgram, "norm_matrix");
 
 	glfwGetFramebufferSize(window, &width, &height);
 	aspect = (float)width / (float)height;
 	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
 	vMat = glm::translate(glm::mat4(f1), glm::vec3(-cameraX, -cameraY, -cameraZ));
 	mMat = glm::translate(glm::mat4(f1), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
-		/*
-		tMat = glm::translate(glm::mat4(1.0f),
-		glm::vec3(sin(-.35f * currentTime) * 2.0f, cos(0.52f * currentTime) * 2.0f, sin(0.7f * currentTime) * 2.0f));
-		rMat = glm::rotate(glm::mat4(1.0f), 1.75f * (float)currentTime, glm::vec3(0.0f, 1.0f, 0.0f));
-		rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(1.0f, 0, 0));
-		rMat = glm::rotate(rMat, 1.75f * (float)currentTime, glm::vec3(0, 0, 1.0f));
-		mMat = tMat * rMat;
-		mvMat = vMat * mMat;
+	mMat *= glm::rotate(mMat, ToRadians(35.0f), glm::vec3(1.0f,0.0f,0.0f));
 
-		glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
-		*/
+	currentLightPos = glm::vec3(initialLightLoc.x, initialLightLoc.y, initialLightLoc.z);
+	installLights(vMat);
+	mvMat = vMat * mMat;
+
+	invTrMat = glm::transpose(glm::inverse(mvMat));
+
 	glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(pMat));
-	glUniformMatrix4fv(vLoc, 1, GL_FALSE, glm::value_ptr(vMat));
-	glUniformMatrix4fv(mLoc, 1, GL_FALSE, glm::value_ptr(mMat));
-	auto timeFactor = (float)(currentTime);
-	glUniform1f(tfLoc, (float)timeFactor);
+	glUniformMatrix4fv(mvLoc, 1, GL_FALSE, glm::value_ptr(mvMat));
+	glUniformMatrix4fv(nLoc, 1, GL_FALSE, glm::value_ptr(invTrMat));
+	
 
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
@@ -113,6 +151,10 @@ void display(GLFWwindow* window, double currentTime) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(1);
 
 	glActiveTexture(GL_TEXTURE0);

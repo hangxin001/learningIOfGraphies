@@ -1,10 +1,11 @@
 #pragma once
-#ifndef __TESTOPENGL__MaterialData__
-#define __TESTOPENGL__MaterialData__
+#ifndef TESTOPENGL__MaterialData
+#define TESTOPENGL__MaterialData
 #include<string>
 #include<vector>
 #include<memory>
 #include<unordered_map>
+#include<array>
 struct Material
 {
 	Material();
@@ -14,15 +15,17 @@ struct Material
 		float specularR, float specularG, float specularB, float specularAlpha,
 		float shininess);
 	std::string m_materialName;
-	std::vector<float> m_ambient;
-	std::vector<float> m_diffuse;
-	std::vector<float> m_specular;
+	std::array<float,4> m_ambient;
+	std::array<float,4> m_diffuse;
+	std::array<float,4> m_specular;
 	float m_shininess;
 
 	virtual std::string GetMateriaName() { return m_materialName; }
-	virtual std::vector<float> GetMaterialAmbient() { return m_ambient; }
-	virtual std::vector<float> GetMaterialDiffuse() { return m_diffuse; }
-	virtual std::vector<float> GetMaterialSpecular() { return m_specular; }
+	
+	virtual std::array<float, 4> GetMaterialAmbient() { return m_ambient; }
+	virtual std::array<float, 4> GetMaterialDiffuse() { return m_diffuse; }
+	virtual std::array<float, 4> GetMaterialSpecular() { return m_specular; }
+	
 	virtual float GetMaterialShiniess() { return m_shininess; }
 };
 class MaterialDataManager {
