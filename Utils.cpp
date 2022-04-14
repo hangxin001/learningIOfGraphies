@@ -115,3 +115,7 @@ std::vector<float> TexCoordsToArray(const std::vector<glm::vec2>& vertexData, co
 	}
 	return RetVec;
 }
+
+float ToRadians(float degrees) {
+	return (degrees * 2.0f * std::numbers::pi) / 360.0f;
+}

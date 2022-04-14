@@ -8,8 +8,8 @@ class Sphere {
 public:
 	Sphere(const int& prec);	//precÎª¾«¶È
 	inline int GetNumVertices() { return m_numVertics; }
-	inline int GetNumIndicse() { return m_numIndices; }
-	inline std::vector<int>& GetIndicse() { return m_indices; }
+	inline int GetNumIndices() { return m_numIndices; }
+	inline std::vector<int>& GetIndices() { return m_indices; }
 	inline std::vector<glm::vec3>& GetVertices() { return m_vertices; }
 	inline std::vector<glm::vec2>& getTexCoords() { return m_texCoords; }
 	inline std::vector<glm::vec3>& getNormals() { return m_normales; }

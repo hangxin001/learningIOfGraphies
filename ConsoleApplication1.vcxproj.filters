@@ -27,12 +27,30 @@
     <ClCompile Include="Sphere.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ModelImporter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Torus.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MaterialData.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utils.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Sphere.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MaterialData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelImporter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Torus.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

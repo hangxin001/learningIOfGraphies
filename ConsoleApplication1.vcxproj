@@ -156,11 +156,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MaterialData.cpp" />
+    <ClCompile Include="ModelImporter.cpp" />
     <ClCompile Include="Sphere.cpp" />
+    <ClCompile Include="Torus.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="MaterialData.h" />
+    <ClInclude Include="ModelImporter.h" />
     <ClInclude Include="Sphere.h" />
+    <ClInclude Include="Torus.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>

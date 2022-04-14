@@ -4,11 +4,14 @@
 #include<string>
 #include"Utils.h"
 #include"Sphere.h"
+#include"Torus.h"
 #include<glm/gtx/string_cast.hpp>
 #include<vector>
 #include<glm/ext.hpp>
+#include"MaterialData.h"
 using namespace std;
 using namespace glm;
+static MaterialDataManager g_materialDataMng;
 constexpr int numVAOs = 1;
 constexpr int numVBOs = 3;
 GLuint renderingProgram;
@@ -24,7 +27,7 @@ int width, height;
 float aspect;
 glm::mat4 pMat, vMat, mMat, mvMat;
 glm::mat4 tMat, rMat;
-Sphere g_sphere(10);
+Torus g_torus(2,1,10);
 
 GLuint createShaderProgram() {
 	GLuint vShader = LoadShaderSource(GL_VERTEX_SHADER, "./shader/vshader.glsl", 1);
@@ -38,10 +41,10 @@ GLuint createShaderProgram() {
 }
 void InitModelData() {
 
-	auto vertex = VertexToArray(g_sphere.GetVertices(),g_sphere.GetIndicse());
-	auto indices = g_sphere.GetIndicse();
-	auto texCoord = TexCoordsToArray(g_sphere.getTexCoords(), g_sphere.GetIndicse());
-	auto normals = VertexToArray(g_sphere.getNormals(), g_sphere.GetIndicse());
+	auto vertex = VertexToArray(g_torus.GetVertices(), g_torus.GetIndices());
+	auto indices = g_torus.GetIndices();
+	auto texCoord = TexCoordsToArray(g_torus.GetTexCoords(), g_torus.GetIndices());
+	auto normals = VertexToArray(g_torus.GetNormals(), g_torus.GetIndices());
 	glGenVertexArrays(numVAOs, vao);
 	glBindVertexArray(vao[0]);
 	glGenBuffers(numVBOs, vbo);
@@ -118,7 +121,7 @@ void display(GLFWwindow* window, double currentTime) {
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	glDrawArraysInstanced(GL_LINES, 0, g_sphere.GetNumIndicse(), 1);
+	glDrawArraysInstanced(GL_TRIANGLES, 0, g_torus.GetNumIndices(), 1);
 
 }
 int main() {
