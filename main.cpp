@@ -9,6 +9,7 @@
 #include<vector>
 #include<glm/ext.hpp>
 #include"MaterialData.h"
+#include"ModelImporter.h"
 using namespace std;
 using namespace glm;
 static MaterialDataManager g_materialDataMng;
@@ -33,7 +34,8 @@ glm::vec3 currentLightPos, lightPosV;
 glm::vec3 initialLightLoc = glm::vec3(5.0f, 2.0f, 2.0f);
 float lightPos[3];
 float globalAmbient[4] = {0.7f,0.7f,0.7f,1.0f};
-Torus g_torus(2,1,10);
+
+ModelImporter g_torus{};
 
 GLuint createShaderProgram() {
 	GLuint vShader = LoadShaderSource(GL_VERTEX_SHADER, "./shader/vshader.glsl", 1);
@@ -46,11 +48,11 @@ GLuint createShaderProgram() {
 	return vfProgram;
 }
 void InitModelData() {
+	g_torus.parseOBJ("./model/Squirtle.obj");
+	auto vertex = g_torus.getVertices();
+	auto texCoord = g_torus.getTextureCoordinates();
+	auto normals = g_torus.getNormals();
 
-	auto vertex = VertexToArray(g_torus.GetVertices(), g_torus.GetIndices());
-	auto indices = g_torus.GetIndices();
-	auto texCoord = TexCoordsToArray(g_torus.GetTexCoords(), g_torus.GetIndices());
-	auto normals = VertexToArray(g_torus.GetNormals(), g_torus.GetIndices());
 	glGenVertexArrays(numVAOs, vao);
 	glBindVertexArray(vao[0]);
 	glGenBuffers(numVBOs, vbo);
@@ -131,7 +133,7 @@ void display(GLFWwindow* window, double currentTime) {
 	pMat = glm::perspective(1.0472f, aspect, 0.1f, 1000.0f);
 	vMat = glm::translate(glm::mat4(f1), glm::vec3(-cameraX, -cameraY, -cameraZ));
 	mMat = glm::translate(glm::mat4(f1), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
-	mMat *= glm::rotate(mMat, ToRadians(35.0f), glm::vec3(1.0f,0.0f,0.0f));
+	mMat *= glm::rotate(mMat, ToRadians(currentTime * 10), glm::vec3(1.0f,0.0f,0.0f));
 
 	currentLightPos = glm::vec3(initialLightLoc.x, initialLightLoc.y, initialLightLoc.z);
 	installLights(vMat);
@@ -155,7 +157,7 @@ void display(GLFWwindow* window, double currentTime) {
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, brickTexture);
@@ -163,7 +165,7 @@ void display(GLFWwindow* window, double currentTime) {
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	glDrawArraysInstanced(GL_TRIANGLES, 0, g_torus.GetNumIndices(), 1);
+	glDrawArraysInstanced(GL_TRIANGLES, 0, g_torus.getNumVertices(), 1);
 
 }
 int main() {
@@ -171,6 +173,7 @@ int main() {
 	if (!glfwInit())	exit(EXIT_FAILURE);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 	GLFWwindow* windows = glfwCreateWindow(400, 400, "Chapter2", NULL, NULL);
 	glfwMakeContextCurrent(windows);
 	if (glewInit() != GLEW_OK)

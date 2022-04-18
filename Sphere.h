@@ -11,8 +11,8 @@ public:
 	inline int GetNumIndices() { return m_numIndices; }
 	inline std::vector<int>& GetIndices() { return m_indices; }
 	inline std::vector<glm::vec3>& GetVertices() { return m_vertices; }
-	inline std::vector<glm::vec2>& getTexCoords() { return m_texCoords; }
-	inline std::vector<glm::vec3>& getNormals() { return m_normales; }
+	inline std::vector<glm::vec2>& GetTexCoords() { return m_texCoords; }
+	inline std::vector<glm::vec3>& GetNormals() { return m_normales; }
 private:
 	void init(const int& prec);
 	float ToRadians(const float& degress);
