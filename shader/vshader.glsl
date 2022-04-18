@@ -1,39 +1,54 @@
 #version 430
 
-layout(location = 0) in vec3 postion;
+layout(location = 0) in vec3 vertPos;
 layout(location = 1) in vec2 texCoord;
+layout(location = 2) in vec3 VertNormal;
+out vec4 varyingColor;
+out vec2 tc;
+struct PositionalLight{
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
+	vec3 postion;
+};
+struct Material{
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
+	float shininess;
+};
 
 uniform mat4 m_matrix;
 uniform mat4 v_matrix;
 uniform mat4 mv_matrix;
 uniform mat4 proj_matrix;
+uniform	mat4 norm_matrix;
+uniform mat4 globalAmbient;
+uniform PositionalLight light;
+uniform Material material;
 
-
-out vec4 varyingColor;
-out vec2 tc;
 mat4 buildRotateX(float rad);
 mat4 buildRotateY(float rad);
 mat4 buildRotateZ(float rad);
 mat4 buildTranslate(float x,float y, float z);
 void main(void){
+	
+	vec4 color;
 
-/*
-	float i = gl_InstanceID + tf;
-	float a = sin(203 * i/8000) * 403.0;
-	float b = sin(301 * i/4001) * 401.0;
-	float c = sin(400 * i/6003) * 405.0;
+	vec4 P = mv_matrix * vec4(vertPos,1.0);
+	vec3 N = normalize((norm_matrix * vec4(VertNormal,1.0)).xyz );
+	vec3 L = normalize(light.postion - P.xyz);
+	vec3 V = normalize(-P.xyz);
+	vec3 R = reflect(-L,N);
 
-	mat4 localRotX = buildRotateX(1 * i);
-	mat4 localRotY = buildRotateY(5 * i);
-	mat4 localRotZ = buildRotateZ(5 * i);
-	mat4 localTrans = buildTranslate(a,b,c);
+	vec3 ambient = ((globalAmbient * material.ambient) + (light.ambient * material.ambient)).xyz; 
+	vec3 diffuse = light.diffuse.xyz * material.diffuse.xyz * max(dot(N,L), 0.0); 
+	vec3 specular = material.specular.xyz * light.specular.xyz * pow(max(dot(R,V), 0.0f), material.shininess); 
+	varyingColor = vec4((ambient + diffuse + specular), 1.0); 
+	gl_Position = proj_matrix * mv_matrix * vec4(vertPos,1.0);
 
-	mat4 newM_matrix = m_matrix * localRotX;// * localTrans * localRotX * localRotY * localRotZ;	//注意是列优先存储
-	*/
-	mat4 mv_matrix = mv_matrix;// * newM_matrix;
-	gl_Position = proj_matrix * mv_matrix * vec4(postion,1.0);
-	varyingColor = vec4(postion,1.0) * 0.5 + vec4(0.5,0.5,0.5,0.5);
-	tc = texCoord;
+	
+	//tc = texCoord;
 }
 
 mat4 buildTranslate(float x,float y, float z){

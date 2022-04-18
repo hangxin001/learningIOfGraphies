@@ -161,6 +161,7 @@
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="Torus.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="ViewPort.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MaterialData.h" />
@@ -168,6 +169,7 @@
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Torus.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="ViewPort.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\fshader.glsl" />

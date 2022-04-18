@@ -25,7 +25,7 @@ public:
 	ModelImporter(){};
 	void parseOBJ(const char* filePath);
 	void parseOBJ(const std::string& filePath);
-	int getNumVertices() { return m_triangleVerts.size() / 3; }
+	int getNumVertices() { return (int)(m_triangleVerts.size() / 3); }
 	std::vector<float> getVertices() { return m_triangleVerts; }
 	std::vector<float> getTextureCoordinates() { return m_textureCoords; }
 	std::vector<float> getNormals() { return m_normals; }
