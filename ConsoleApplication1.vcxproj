@@ -166,6 +166,8 @@
   <ItemGroup>
     <ClInclude Include="MaterialData.h" />
     <ClInclude Include="ModelImporter.h" />
+    <ClInclude Include="ObjectMng.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Torus.h" />
     <ClInclude Include="Utils.h" />
@@ -174,6 +176,9 @@
   <ItemGroup>
     <None Include="shader\fshader.glsl" />
     <None Include="shader\vshader.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ConsoleApplication1.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

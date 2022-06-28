@@ -59,6 +59,12 @@
     <ClInclude Include="ViewPort.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectMng.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\fshader.glsl">
@@ -67,5 +73,10 @@
     <None Include="shader\vshader.glsl">
       <Filter>源文件\shader</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ConsoleApplication1.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

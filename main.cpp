@@ -14,7 +14,8 @@
 using namespace std;
 using namespace glm;
 
-static ViewPort g_ViewPort{};
+auto& g_ViewPort = Singleton<ViewPort>::GetInstanceRef();
+auto& g_InputMng = Singleton<InputMng>::GetInstanceRef();
 static MaterialDataManager g_materialDataMng;
 
 //以后要全部优化的变量
@@ -23,7 +24,6 @@ constexpr int numVBOs = 3;
 GLuint renderingProgram;
 GLuint vao[numVAOs];
 GLuint vbo[numVBOs];
-//float cameraX,cameraY, cameraZ;
 float cubeLocX,cubeLocY, cubeLocZ;
 
 //display()中使用
@@ -75,7 +75,7 @@ void init(GLFWwindow* window) {
 	cubeLocX = 0.0f; cubeLocY = 0.0f;	cubeLocZ = 0.0f;
 	g_ViewPort.SetCameraPos(0.0f, 0.0f, 10);
 	glfwGetFramebufferSize(window, &width, &height);
-
+	g_InputMng.RegistInputDevicesCallBakeFun(window);
 	InitModelData();
 }
 void installLights(glm::mat4 vMatrix) {
@@ -136,11 +136,21 @@ void display(GLFWwindow* window, double currentTime) {
 	mLoc = glGetUniformLocation(renderingProgram, "m_matrix");
 	nLoc = glGetUniformLocation(renderingProgram, "norm_matrix");
 
-	
+	auto angle = g_ViewPort.GetCameraAngle();
+	auto angleX = std::get<0>(angle);
+	auto angleY = std::get<1>(angle);
+	/*	DEBUG_ANGLE
+	auto debugAngle = g_ViewPort.GetCameraAngle();
+	auto debugAngleX = std::get<0>(debugAngle);
+	auto denigAngleY = std::get<1>(debugAngle);
+	g_ViewPort.SetCameraRotate(ViewPort::CameraRotateAxis::X, 1);
+	g_ViewPort.SetCameraRotate(ViewPort::CameraRotateAxis::Y, 1);
+	*/
 	pMat = g_ViewPort.GetPMat();
+	
 	vMat = g_ViewPort.GetVMat();
 	mMat = glm::translate(glm::mat4(f1), glm::vec3(cubeLocX, cubeLocY, cubeLocZ));
-	mMat *= glm::rotate(mMat, ToRadians(currentTime * 10), glm::vec3(1.0f,0.0f,0.0f));
+	
 
 	currentLightPos = glm::vec3(initialLightLoc.x, initialLightLoc.y, initialLightLoc.z);
 	installLights(vMat);
@@ -173,9 +183,8 @@ void display(GLFWwindow* window, double currentTime) {
 	glDrawArraysInstanced(GL_TRIANGLES, 0, g_torus.getNumVertices(), 1);
 
 }
-int main() {
+int main(int argc, char** argv) {
 	g_ViewPort.Init(400, 400, 1.0472f, 0.1f, 100.0f);
-
 	if (!glfwInit())	exit(EXIT_FAILURE);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -186,6 +195,7 @@ int main() {
 		exit(EXIT_FAILURE);
 	glfwSwapInterval(1);
 	init(windows);
+	
 	while (!glfwWindowShouldClose(windows)) {
 		display(windows, glfwGetTime());
 		glfwSwapBuffers(windows);

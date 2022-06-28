@@ -44,4 +44,22 @@ std::vector<float> TexCoordsToArray(const std::vector<glm::vec2>& vertexData, co
 
 float ToRadians(float);
 
+
+template<typename T>
+class  Singleton {
+public:
+	static T& GetInstanceRef() {
+		static T tmp;
+		return tmp;
+	}
+};
+
+template <typename T>
+inline T* GetSingleton() {
+	return Singleton<T>::GetInstance();
+}
+
+
+
+
 #endif // !__AUXFUN__
