@@ -13,7 +13,7 @@ ViewPort::ViewPort() {
 	m_cameraPitch = 0.0f;
 	m_cameraRoll = 0.0f;
 	m_cameraYaw = 0.0f;
-
+	m_moveSpeed = 1.0f;
 	m_pMat = glm::mat4(0.0f);
 	m_vMat = glm::mat4(0.0f);
 }
@@ -81,21 +81,51 @@ std::tuple<float, float, float> ViewPort::GetCameraAngle() {
 
 void InputMng::RegistInputDevicesCallBakeFun(GLFWwindow* winPtr) {
 	glfwSetKeyCallback(winPtr, processNormalKeys);
+	KEYBOARDFUN_REGIST(GLFW_KEY_S);
+	KEYBOARDFUN_REGIST(GLFW_KEY_W);
+	KEYBOARDFUN_REGIST(GLFW_KEY_A);
 	KEYBOARDFUN_REGIST(GLFW_KEY_D);
+	
 }
 void InputMng::processNormalKeys(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	auto& mng = Singleton<InputMng>::GetInstanceRef();
 	auto Ret = mng.m_keyBoardFunMap.find(key);
 	if (Ret != mng.m_keyBoardFunMap.end()) {
-		mng.m_keyBoardFunMap[key](window, key, scancode, action, mods);
+		auto fun = mng.m_keyBoardFunMap[key];
+		(mng.*fun)(window, key, scancode, action, mods);
 	}
 }
 
+KEYBOARDFUN_DEFINE(GLFW_KEY_S) {
+	auto& viewport = Singleton<ViewPort>::GetInstanceRef();
+	auto pos = viewport.GetCameraPos();
+	auto x = std::get<0>(pos);
+	auto y = std::get<1>(pos);
+	auto z = std::get<2>(pos);
+	viewport.SetCameraPos(x, y, z + viewport.GetCameraMoveSpeed());
+}
+KEYBOARDFUN_DEFINE(GLFW_KEY_W) {
+	auto& viewport = Singleton<ViewPort>::GetInstanceRef();
+	auto pos = viewport.GetCameraPos();
+	auto x = std::get<0>(pos);
+	auto y = std::get<1>(pos);
+	auto z = std::get<2>(pos);
+	viewport.SetCameraPos(x , y, z - viewport.GetCameraMoveSpeed());
+}
+
+KEYBOARDFUN_DEFINE(GLFW_KEY_A) {
+	auto& viewport = Singleton<ViewPort>::GetInstanceRef();
+	auto pos = viewport.GetCameraPos();
+	auto x = std::get<0>(pos);
+	auto y = std::get<1>(pos);
+	auto z = std::get<2>(pos);
+	viewport.SetCameraPos(x - viewport.GetCameraMoveSpeed(), y, z);
+}
 KEYBOARDFUN_DEFINE(GLFW_KEY_D) {
 	auto& viewport = Singleton<ViewPort>::GetInstanceRef();
 	auto pos = viewport.GetCameraPos();
 	auto x = std::get<0>(pos);
 	auto y = std::get<1>(pos);
 	auto z = std::get<2>(pos);
-	viewport.SetCameraPos(x, y, z + 1);
+	viewport.SetCameraPos(x + viewport.GetCameraMoveSpeed(), y, z);
 }

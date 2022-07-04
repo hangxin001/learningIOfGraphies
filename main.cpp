@@ -18,7 +18,8 @@ auto& g_ViewPort = Singleton<ViewPort>::GetInstanceRef();
 auto& g_InputMng = Singleton<InputMng>::GetInstanceRef();
 static MaterialDataManager g_materialDataMng;
 
-//以后要全部优化的变量
+//以后要全部优化的变量，逐步封装为各种管理类
+//待优化 开始
 constexpr int numVAOs = 1;
 constexpr int numVBOs = 3;
 GLuint renderingProgram;
@@ -39,7 +40,7 @@ glm::vec3 currentLightPos, lightPosV;
 glm::vec3 initialLightLoc = glm::vec3(5.0f, 2.0f, 2.0f);
 float lightPos[3];
 float globalAmbient[4] = {0.7f,0.7f,0.7f,1.0f};
-
+//待优化 结束
 ModelImporter g_torus{};
 
 GLuint createShaderProgram() {
@@ -199,7 +200,7 @@ int main(int argc, char** argv) {
 	while (!glfwWindowShouldClose(windows)) {
 		display(windows, glfwGetTime());
 		glfwSwapBuffers(windows);
-		glfwPollEvents();
+		glfwWaitEvents();
 	}
 	glfwDestroyWindow(windows);
 	glfwTerminate();

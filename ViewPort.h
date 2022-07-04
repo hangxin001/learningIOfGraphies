@@ -28,6 +28,7 @@ public:
 	inline glm::mat4 GetVMat() { return m_vMat; }
 	inline int GetScreenWidth() { return m_screenWidth; };
 	inline int GetScreenHeight() { return m_screenHeight; }
+	inline float GetCameraMoveSpeed() { return m_moveSpeed; }
 	std::tuple<float, float, float> GetCameraPos();	//·µ»Øx£¬y£¬zË³ÐòµÄtuple
 	std::tuple<float, float, float> GetCameraAngle();
 
@@ -47,24 +48,29 @@ private:
 	float m_cameraYaw;
 	float m_cameraRoll;
 
+	float m_moveSpeed;
+
 	glm::mat4 m_pMat;
 	glm::mat4 m_vMat;
 };
 
 
-#define KEYBOARDFUN_DECLARE(keyName) static void KeyBoardFun_##keyName(GLFWwindow* window, int key, int scancode, int action, int mods);
+#define KEYBOARDFUN_DECLARE(keyName) void KeyBoardFun_##keyName(GLFWwindow* window, int key, int scancode, int action, int mods);
 #define KEYBOARDFUN_DEFINE(keyName) void InputMng::KeyBoardFun_##keyName(GLFWwindow* window, int key, int scancode, int action, int mods)
-#define KEYBOARDFUN_REGIST(keyName)	m_keyBoardFunMap[keyName] = InputMng::KeyBoardFun_##keyName;
+#define KEYBOARDFUN_REGIST(keyName)	m_keyBoardFunMap[keyName] = &InputMng::KeyBoardFun_##keyName;
 class InputMng //¼üÊó²Ù×÷
 {
 public:
 	void RegistInputDevicesCallBakeFun(GLFWwindow* winPtr);
 private:
-	std::unordered_map<unsigned char, void(*)(GLFWwindow* window, int key, int scancode, int action, int mods)>	m_keyBoardFunMap;
+	std::unordered_map<unsigned char, void(InputMng::*)(GLFWwindow* window, int key, int scancode, int action, int mods)>	m_keyBoardFunMap;
 	std::unordered_map<unsigned char, void(*)()>	m_MouseFunMap;
 private:
 	static void processNormalKeys(GLFWwindow* window, int key, int scancode, int action, int mods);
 private:
+	KEYBOARDFUN_DECLARE(GLFW_KEY_S);
+	KEYBOARDFUN_DECLARE(GLFW_KEY_W);
+	KEYBOARDFUN_DECLARE(GLFW_KEY_A);
 	KEYBOARDFUN_DECLARE(GLFW_KEY_D);
 };
 
